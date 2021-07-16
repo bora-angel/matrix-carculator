@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Do+Hyeon&family=Jua&family=Song+Myung&display=swap"
+        rel="stylesheet">
+    <link href="./matrix.css" rel="stylesheet">
+    <title>행렬계산기</title>
+</head>
+<body>
+    <header class="titleArea">
+        <h2 class="titleParagraph">행렬 계산기</h2>
+    </header>
+    <section class="inputArea">
+        <article class="leftInputArea">
+            <label>행(Y)
+                <input id="inY1" class="commonIn" type="number" min="0" max="999" value="0" autofocus tabindex=10>
+            </label>
+            <label>열(X)
+                <input id="inX1" class="commonIn" type="number" min="0" max="999" value="0" tabindex=20>
+            </label>
+        </article>
+        <article class="rightInputArea">
+            <label>행(Y)
+                <input id="inY2" class="commonIn" type="number" min="0" max="999" value="0" tabindex=22>
+            </label>
+            <label>열(X)
+                <input id="inX2" class="commonIn" type="number" min="0" max="999" value="0" tabindex=25>
+            </label>
+        </article>
+    </section>
+    <section class="btnArea">
+        <button id="drawXY" class="commonBtn" tabindex=30>그리기</button>
+        <button id="randomSet" class="commonBtn" tabindex=33>랜덤</button>
+        <button id="plusBtn" class="commonBtn" tabindex=35>더하기</button>
+        <button id="minusBtn" class="commonBtn" tabindex=38>빼기</button>
+        <button id="multiplyBtn" class="commonBtn" tabindex=38>곱하기</button>
+        <button id="resetXY" class="commonBtn resetBtn" tabindex=50>초기화</button>
+    </section>
+    <section class="drawArea">
+        <article class="drawAreaInLeft">
+            <div id="drawBoxL" class="drawBox"></div>
+        </article>
+        <article class="drawAreaInRight">
+            <div id="drawBoxR" class="drawBox"></div>
+        </article>
+    </section>
+    <section class="resultArea">
+        <article class="resultAreaIn">
+            <div id="resultBox" class="drawBox"></div>
+        </article>
+    </section>
+    <script>
+        let mainEntry = () => {
+            let resetF = () => {
+                document.getElementById("inX1").value = document.getElementById("inY1").value = 0;
+                document.getElementById("inX2").value = document.getElementById("inY2").value = 0;
+                document.getElementById("drawBoxL").innerHTML = "";
+                 document.getElementById("drawBoxR").innerHTML = "";
+                 document.getElementById("resultBox").innerHTML = "";
+            }
+            let resetR = () => {
+                document.getElementById("resultBox").innerHTML = "";
+            }
+
+            function drawXY(selectId, selectYAxis, selectXAxis) {
+                this.inY = document.getElementById(selectYAxis).value;
+                this.inX = document.getElementById(selectXAxis).value;
+                this.boxSize = document.getElementById(selectId);
+                this.matrixArray = [];
+                this.plusArray = [];
+                this.minusArray = [];
+
+                this.matrixSetting = function (selMethod) {
+                    let k = 0;
+                    while (k < this.inY) {
+                        this.matrixArray.push([]);
+                        k++;
+                    }                   
+                    let j = 0;
+                    while (j < this.inY) {
+                        let i = 0;
+                        while (i < this.inX) {
+                            (selMethod == 'resetArray') && (this.matrixArray[j][i] = 0);
+                            (selMethod == 'randomArray') && (this.matrixArray[j][i] = Math.floor(Math.random() * 1000));
+                            i++;
+                        }
+                        j++;
+                    }
+                }              
+
+                this.drawBox = function () {
+                    this.boxSize.innerHTML = "";
+                    this.boxSize.style.width = this.inX * 50 + "px";
+                    this.boxSize.style.height = this.inY * 50 + "px";
+                    this.boxSize.style.position = "absolute";
+                    this.boxSize.style.top = 50 + "%";
+                    this.boxSize.style.left = 50 + "%";
+                    this.boxSize.style.marginTop = -((this.inY * 50) / 2) + "px";
+                    this.boxSize.style.marginLeft = -((this.inX * 50) / 2) + "px";
+
+                    this.matrixArray.forEach((rowValue, rowIndex) => { //여기 중괄호도 하나 지울 수 있음. 괄호는 두기.
+                        rowValue.forEach((colValue, colIndex) => {
+                            this.boxSize.innerHTML += '<input type="number" id="' + selectId + rowIndex + colIndex +'" class="boxDeco" min="0" max="999" value="' + colValue + '">';
+                        }); //2차배열이라 forEach를 두 번 사용.
+                    });
+                }
+
+                this.plusValue = function (inputLeftId, inputRightId) {
+                    let inY1V = Number(document.getElementById("inY1").value);
+                    let inX1V = Number(document.getElementById("inX1").value);
+                    let inY2V = Number(document.getElementById("inY2").value);
+                    let inX2V = Number(document.getElementById("inX2").value);
+
+                    if(inY1V==inY2V&&inX1V==inX2V){
+                     let i = 0;
+                     while (i <inY1V) {
+                        let j = 0;
+                        while (j <inX1V) {
+                            let leftBoxV = parseInt(document.getElementById(inputLeftId + i + j).value);
+                            let rightBoxV = parseInt(document.getElementById(inputRightId + i + j).value);
+                            this.plusArray.push(leftBoxV + rightBoxV);
+                            this.plusArray.forEach((value) => document.getElementById('resultBox' + i + j).value = value);
+                            j++;
+                        }
+                        i++;
+                        }
+                    }else{
+                        alert("덧셈은 왼쪽 행렬과 오른쪽 행렬의 행렬의 수가 같아야합니다.");
+                        resetR();
+                    }
+                }
+
+                this.minusValue = function (inputLeftId, inputRightId) {
+                    let inY1V = Number(document.getElementById("inY1").value);
+                    let inX1V = Number(document.getElementById("inX1").value);
+                    let inY2V = Number(document.getElementById("inY2").value);
+                    let inX2V = Number(document.getElementById("inX2").value);
+
+                    if(inY1V==inY2V&&inX1V==inX2V){
+                        let i = 0;
+                        while (i < inY1V) {
+                        let j = 0;
+                        while (j < inX1V) {
+                            let leftBoxV = parseInt(document.getElementById(inputLeftId + i + j).value);
+                            let rightBoxV = parseInt(document.getElementById(inputRightId + i + j).value);
+                            this.minusArray.push(leftBoxV - rightBoxV);
+                            this.minusArray.forEach((value) => document.getElementById('resultBox' + i + j).value = value);
+                            j++;
+                        }
+                        i++;
+                    }
+                    }else{
+                        alert("뺄셈은 왼쪽 행렬과 오른쪽 행렬의 행렬의 수가 같아야합니다.");
+                        resetR();
+                    }
+                }
+
+                this.multiplyValue = function () {
+                    let inY1V = Number(document.getElementById("inY1").value);
+                    let inX1V = Number(document.getElementById("inX1").value);
+                    let inY2V = Number(document.getElementById("inY2").value);
+                    let inX2V = Number(document.getElementById("inX2").value)
+                    let matrixLeftArray = [];
+                    let matrixRightArray = [];
+                    let multiplyArray = [];
+                    let multiplyTemp=[];
+                    let mulTmp=0;
+                    //왼쪽행렬의 열의 수와 오른쪽 행렬의 행의 개수가 맞는지 확인하기.
+                    // 왼쪽, 오른쪽의  행렬 값 가져오기
+                    for(let i=0; i<inY1V; i++){
+                        matrixLeftArray.push([]);
+                    }
+                    for(let j=0; j<inY2V; j++){
+                        matrixRightArray.push([]);
+                    }
+                    if(inX1V == inY2V){
+                        for(i=0; i<inY1V; i++){
+                            for(j=0; j<inX1V; j++){
+                                matrixLeftArray.forEach(function(arrL,index){
+                                    if(index==i){
+                                    arrL.push(Number(document.getElementById("drawBoxL"+i+j).value));  
+                                    }
+                                });
+                            }
+                        }
+                        for(i=0; i<inY2V; i++){
+                            for( j=0; j<inX2V; j++){
+                                matrixRightArray.forEach(function(arrR,index){
+                                    if(index==i){
+                                    arrR.push(Number(document.getElementById("drawBoxR"+i+j).value));  
+                                    }
+                                });
+                            }
+                        }
+                        //좌우 행렬 곱셈하기
+                        for(i=0; i<inY1V; i++){ //2
+                            for(j=0; j<inX2V; j++){ //2
+                                for(let k=0; k<inY2V; k++){  //2 8번
+                                 for(let l=0; l<inX1V; l++){
+                                     if(k==l){
+                                      mulTmp += matrixLeftArray[i][l]*matrixRightArray[k][j]; //왼쪽의 행보다 오른쪽의 열이 더 먼저 증가하기 때문에 안쪽 반복문에 쓰이는 j를 오른쪽 배열의 안쪽 배열의 인덱스 번호로 쓴다. 
+                                     }
+                                }
+                            }
+                            multiplyTemp.push(mulTmp);
+                            document.getElementById('resultBox'+i+j).value=mulTmp;
+                            mulTmp=0;
+                          }
+                          multiplyArray.push(multiplyTemp);
+                          multiplyTemp=[];
+                        }
+                    }else{
+                        alert("곱셈은 왼쪽 행렬의 행의 수와 오른쪽 행렬의 열의 수가 같아야합니다.");
+                        resetR();
+                    }
+                }
+            }
+
+            this.addEventListener("click", (e) => {
+                let boxL = new drawXY("drawBoxL", "inY1", "inX1");
+                let boxR = new drawXY("drawBoxR", "inY2", "inX2");
+                let boxP = new drawXY("resultBox", "inY1", "inX2");
+                let boxM = new drawXY("resultBox", "inY1", "inX2");
+                let boxMul = new drawXY("resultBox", "inY1", "inX2");
+
+                switch (e.target.id) {
+                    case 'drawXY':
+                        boxL.matrixSetting("resetArray");
+                        boxL.drawBox();
+                        boxR.matrixSetting("resetArray");
+                        boxR.drawBox();
+                        break;
+                    case 'randomSet':
+                        boxL.matrixSetting("randomArray");
+                        boxL.drawBox();
+                        boxR.matrixSetting("randomArray");
+                        boxR.drawBox();
+                        break;
+                    case 'resetXY':
+                        resetF();
+                        break;
+                    case 'plusBtn':
+                        boxP.matrixSetting("resetArray");
+                        resetR();
+                        boxP.drawBox();
+                        boxP.plusValue("drawBoxL", "drawBoxR");
+                        break;
+                    case 'minusBtn':
+                        boxP.matrixSetting("resetArray");
+                        resetR();
+                        boxP.drawBox();
+                        boxP.minusValue("drawBoxL", "drawBoxR");
+                        break;
+                    case 'multiplyBtn': //곱하기 버튼
+                        boxMul.matrixSetting("resetArray");
+                        resetR();
+                        boxMul.drawBox();
+                        boxMul.multiplyValue(); 
+                        break;
+                }
+            })
+        }
+        
+        onload = () => {
+            mainEntry();
+        };
+    </script>
+</body>
+
+</html>
